@@ -6,7 +6,7 @@ import db from '../database/connection';
 
 
 
-export default class ForgotPassword {
+export default class ForgotPassController {
 
     //forgot_password
     async store(req: Request, res: Response) {
@@ -43,7 +43,7 @@ export default class ForgotPassword {
                 if (err)
                     return res.status(400).send({ error: 'Cannot send forgot password email' });
 
-                return res.send();
+                return res.send("ok");
             });
 
 

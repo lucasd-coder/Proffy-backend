@@ -6,7 +6,7 @@ import Validator from 'validator';
 import db from '../database/connection';
 
 
-export default class ResetPassword {
+export default class ResetPassController {
 
 
     // reset_password

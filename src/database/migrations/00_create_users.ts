@@ -7,6 +7,7 @@ export async function up(knex: Knex) {
         table.string('avatar').notNullable();
         table.string('whatsapp').notNullable();
         table.string('bio').notNullable();
+
     })
 }
 

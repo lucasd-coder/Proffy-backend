@@ -25,6 +25,8 @@ export default class ClassesController {
 
         const timeInMinutes = convertHourToMinutes(time);
 
+
+
         const classes = await db('classes')
             .whereExists(function () {
                 this.select('class_schedule.*')
@@ -33,11 +35,13 @@ export default class ClassesController {
                     .whereRaw('`class_schedule`.`week_day` = ??', [Number(week_day)])
                     .whereRaw('`class_schedule`.`from` <= ??', [timeInMinutes])
                     .whereRaw('`class_schedule`.`to` > ??', [timeInMinutes])
-
             })
             .where('classes.subject', '=', subject)
             .join('users', 'classes.user_id', '=', 'users.id')
-            .select(['classes.*', 'users.*'])
+            .select(['classes.*', 'users.*']);
+
+        //.join('users', 'fotos.user_id', '=', 'users.id')
+
 
         return res.json(classes);
 
@@ -46,10 +50,10 @@ export default class ClassesController {
     async create(req: Request, res: Response) {
         const {
             name,
-            avatar,
             whatsapp,
             bio,
             subject,
+            avatar,
             cost,
             schedule
         } = req.body;
@@ -60,9 +64,9 @@ export default class ClassesController {
 
             const insertedUsersIds = await tsx('users').insert({
                 name,
-                avatar,
                 whatsapp,
                 bio,
+                avatar
             });
 
             const user_id = insertedUsersIds[0];

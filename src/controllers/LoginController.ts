@@ -42,12 +42,18 @@ export default class LoginController {
                 if (data.length === 0) {
                     try {
                         const hash = await bcryptjs.hash(password, 8);
-                        const user = await db('login').insert({
+                        await db('login').insert({
                             name,
                             email,
                             password: hash
-                        }).select('id');
-                        return res.status(201).send(user);
+                        }).then((data) => {
+                            db('login').where('id', data[0])
+                                .then((data) => {
+                                    const email = data[0].email;
+                                    const name = data[0].name;
+                                    return res.status(201).json({ name, email });
+                                });
+                        });
                     } catch (e) {
                         return res.status(400).json(e);
                     }
@@ -100,37 +106,6 @@ export default class LoginController {
             return res.status(400).json(e);
 
         }
-
-
-
-
-
-
-
-        // db('login')
-        //     .where({ email: email }).select('password').then(function (result) {
-        //         if (!result || !result[0]) {
-        //             return res.status(401).json({ errors: 'invalid email' });
-        //         }
-        //         const pass = result[0].password;
-
-        //         if (!passwordIsVlid(password, pass)) {
-        //             return res.status(400).send({ error: 'invalid password' });
-        //         }
-
-
-        //     }).catch(function (error) {
-        //         console.log(error);
-
-        //     })
-
-
-
-
-
-
-
-
 
     }
 
