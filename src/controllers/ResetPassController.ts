@@ -50,7 +50,7 @@ export default class ResetPassController {
                     const hash = bcryptjs.hashSync(password, salt);
 
                     db('login').where("id", row.id)
-                        .update({ password: hash, passwordResetToken: null })
+                        .update({ password: hash, passwordResetToken: null, passwordResetExpires: null })
                         .then(resp => {
                             res.status(201).json(resp);
                         }

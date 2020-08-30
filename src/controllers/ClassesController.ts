@@ -26,8 +26,7 @@ export default class ClassesController {
         const timeInMinutes = convertHourToMinutes(time);
 
 
-
-        const classes = await db('classes')
+        await db('classes')
             .whereExists(function () {
                 this.select('class_schedule.*')
                     .from('class_schedule')
@@ -38,12 +37,24 @@ export default class ClassesController {
             })
             .where('classes.subject', '=', subject)
             .join('users', 'classes.user_id', '=', 'users.id')
-            .select(['classes.*', 'users.*']);
+            .select(['classes.*', 'users.*']).then((data) => {
+                const data_fotos = data[0].user_id;
+                db('fotos').where('fotos.user_id', data_fotos)
+                    .select('fotos.url', 'fotos.filename', 'fotos.originalname')
+                    .orderBy('id', 'desc')
+                    .then((Fotos) => {
+                        const data_fotos = [...data, { Fotos }];
+                        return res.json(data_fotos);
+                    }).catch((e) => { res.status(400).json(e) });
+            }).catch((e) => { res.status(400).json(e) });
 
-        //.join('users', 'fotos.user_id', '=', 'users.id')
-
-
-        return res.json(classes);
+        // const testeId = classes[0].user_id;
+        // //console.log(testeId);
+        // const teste = await db('fotos').where('fotos.user_id', '=', testeId)
+        //     .join('users', 'fotos.user_id', '=', 'users.id').orderBy('id', 'desc')
+        //     .select(['fotos.*', 'users.*']);
+        // console.log({ Fotos: teste });
+        //return res.json(classes);
 
     }
 
@@ -53,7 +64,6 @@ export default class ClassesController {
             whatsapp,
             bio,
             subject,
-            avatar,
             cost,
             schedule
         } = req.body;
@@ -66,7 +76,6 @@ export default class ClassesController {
                 name,
                 whatsapp,
                 bio,
-                avatar
             });
 
             const user_id = insertedUsersIds[0];

@@ -1,10 +1,9 @@
-import multer from 'multer';
+import multer, { MulterError, ErrorCode } from 'multer';
 import { Request, Response } from 'express';
 
 import multerConfig from '../config/multerConfig';
 import db from '../database/connection';
 import * as config from '../config/privat';
-
 
 
 const upload = multer(multerConfig).single('foto');
