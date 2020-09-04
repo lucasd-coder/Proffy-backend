@@ -85,6 +85,7 @@ export default class LoginController {
                 .where('login.email', email)
                 .first();
 
+
             if (!user) {
                 return res.status(401).json({ errors: 'invalid email' });
             }

@@ -1,4 +1,4 @@
-import multer, { MulterError, ErrorCode } from 'multer';
+import multer from 'multer';
 import { Request, Response } from 'express';
 
 import multerConfig from '../config/multerConfig';

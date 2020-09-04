@@ -47,17 +47,7 @@ export default class ClassesController {
                         return res.json(data_fotos);
                     }).catch((e) => { res.status(400).json(e) });
             }).catch((e) => { res.status(400).json(e) });
-
-        // const testeId = classes[0].user_id;
-        // //console.log(testeId);
-        // const teste = await db('fotos').where('fotos.user_id', '=', testeId)
-        //     .join('users', 'fotos.user_id', '=', 'users.id').orderBy('id', 'desc')
-        //     .select(['fotos.*', 'users.*']);
-        // console.log({ Fotos: teste });
-        //return res.json(classes);
-
     }
-
     async create(req: Request, res: Response) {
         const {
             name,
@@ -113,5 +103,141 @@ export default class ClassesController {
 
 
 
+    }
+
+    async update(req: Request, res: Response) {
+
+        const { id } = req.params;
+
+        const {
+            name,
+            whatsapp,
+            bio,
+            subject,
+            cost,
+            schedule
+        } = req.body;
+
+
+        const tsx = await db.transaction();
+
+        try {
+            if (!id) {
+                return res.status(400).json({
+                    errors: ['Missing ID'],
+                });
+            }
+
+            const users = await tsx('users')
+                .where('users.id', id)
+                .first('users.id');
+
+            if (!users) {
+                return res.status(400).json({
+                    errors: ['there is no'],
+                });
+            }
+
+            const _id = users.id;
+
+            const insertedUsersIds = await tsx('users')
+                .where('users.id', _id)
+                .update({
+                    name,
+                    whatsapp,
+                    bio,
+                });
+
+
+            const user_id = insertedUsersIds;
+
+            const insertedClassesIds = await tsx('classes')
+                .where('classes.user_id', user_id)
+                .update({
+                    subject,
+                    cost,
+                });
+
+            const class_id = insertedClassesIds;
+
+
+
+            const classSchedule = schedule.map((scheduleItem: ScheduleItem) => {
+                return {
+                    week_day: scheduleItem.week_day,
+                    from: convertHourToMinutes(scheduleItem.from),
+                    to: convertHourToMinutes(scheduleItem.to),
+                };
+            });
+
+            const _week_day = classSchedule[0].week_day;
+            const _from = classSchedule[0].from;
+            const _to = classSchedule[0].to;
+
+            await tsx('class_schedule')
+                .where('class_schedule.class_id', class_id)
+                .update({
+                    week_day: _week_day,
+                    from: _from,
+                    to: _to
+                });
+
+            await tsx.commit();
+
+            return res.status(201).send();
+
+        } catch (e) {
+            await tsx.rollback();
+            console.log(e);
+            return res.status(400).json({
+                error: 'Unexpected white class update error'
+            });
+        }
+    }
+    async show(req: Request, res: Response) {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                errors: ['Missing ID'],
+            });
+        }
+
+        try {
+
+            const users = await db('users')
+                .where('users.id', id)
+                .first('users.id');
+
+            if (!users) {
+                return res.status(400).json({
+                    errors: ['there is no'],
+                });
+            }
+
+            const _id = users.id;
+
+
+            await db('users').select('US.nome_users as users', 'CL.nome_class as classes', 'SC.nome_cs as class_schedule').from('')
+
+            // await db('classes')
+            //     .where('classes.id', '=', _id)
+            //     .join('users', 'classes.user_id', '=', 'users.id')
+            //     .select(['classes.*', 'users.*'])
+            //     .then((data) => {
+            //         const data_fotos = data[0].user_id;
+            //         db('fotos').where('fotos.user_id', data_fotos)
+            //             .select('fotos.url', 'fotos.filename', 'fotos.originalname')
+            //             .orderBy('id', 'desc')
+            //             .then((Fotos) => {
+            //                 const data_fotos = [...data, { Fotos }];
+            //                 return res.json(data_fotos);
+            //             }).catch((e) => { res.status(400).json(e) });
+            //     }).catch((e) => { res.status(400).json(e) });
+
+
+        } catch (e) {
+            res.status(400).json(e)
+        }
     }
 }
