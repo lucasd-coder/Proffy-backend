@@ -18,10 +18,10 @@ class FotoController {
             }
             try {
                 const { originalname, filename } = req.file;
-                const { user_id } = req.body;
+                const { foto_id } = req.body;
                 try {
                     await db('fotos').insert({
-                        user_id: user_id,
+                        foto_id: foto_id,
                         originalname: originalname,
                         filename: filename,
                         url: `${config.APP_URL}/images/${filename}`

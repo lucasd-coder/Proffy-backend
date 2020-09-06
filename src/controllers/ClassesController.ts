@@ -39,7 +39,7 @@ export default class ClassesController {
             .join('users', 'classes.user_id', '=', 'users.id')
             .select(['classes.*', 'users.*']).then((data) => {
                 const data_fotos = data[0].user_id;
-                db('fotos').where('fotos.user_id', data_fotos)
+                db('fotos').where('fotos.foto_id', data_fotos)
                     .select('fotos.url', 'fotos.filename', 'fotos.originalname')
                     .orderBy('id', 'desc')
                     .then((Fotos) => {
@@ -100,9 +100,6 @@ export default class ClassesController {
                 error: 'Unexpected error white creating new class'
             })
         }
-
-
-
     }
 
     async update(req: Request, res: Response) {
@@ -160,8 +157,6 @@ export default class ClassesController {
 
             const class_id = insertedClassesIds;
 
-
-
             const classSchedule = schedule.map((scheduleItem: ScheduleItem) => {
                 return {
                     week_day: scheduleItem.week_day,
@@ -217,24 +212,24 @@ export default class ClassesController {
 
             const _id = users.id;
 
-
-            await db('users').select('US.nome_users as users', 'CL.nome_class as classes', 'SC.nome_cs as class_schedule').from('')
-
-            // await db('classes')
-            //     .where('classes.id', '=', _id)
-            //     .join('users', 'classes.user_id', '=', 'users.id')
-            //     .select(['classes.*', 'users.*'])
-            //     .then((data) => {
-            //         const data_fotos = data[0].user_id;
-            //         db('fotos').where('fotos.user_id', data_fotos)
-            //             .select('fotos.url', 'fotos.filename', 'fotos.originalname')
-            //             .orderBy('id', 'desc')
-            //             .then((Fotos) => {
-            //                 const data_fotos = [...data, { Fotos }];
-            //                 return res.json(data_fotos);
-            //             }).catch((e) => { res.status(400).json(e) });
-            //     }).catch((e) => { res.status(400).json(e) });
-
+            await db('users')
+                .select(['users.*', 'classes.*', 'class_schedule.*'])
+                .innerJoin('classes', 'classes.user_id', 'users.id')
+                .innerJoin('class_schedule', 'class_schedule.class_id', 'users.id')
+                .where('users.id', _id)
+                .then((data) => {
+                    const data_fotos = data[0].user_id;
+                    db('fotos').where('fotos.foto_id', data_fotos)
+                        .select('fotos.url', 'fotos.filename', 'fotos.originalname')
+                        .orderBy('id', 'desc')
+                        .then((Fotos) => {
+                            const data_fotos = [...data, { Fotos }];
+                            return res.json(data_fotos);
+                        }).catch((e) => { res.status(400).json(e) });
+                }).catch((e) => {
+                    console.log(e);
+                    return res.status(400).json(e);
+                });
 
         } catch (e) {
             res.status(400).json(e)

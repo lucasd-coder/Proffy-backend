@@ -7,7 +7,7 @@ export async function up(knex: Knex) {
         table.string('filename').notNullable();
         table.string('url').notNullable();
 
-        table.integer('user_id')
+        table.integer('foto_id')
             .notNullable()
             .references('id')
             .inTable('users')

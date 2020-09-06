@@ -1,4 +1,5 @@
 import path from 'path';
+import 'dotenv/config';
 
 module.exports = {
     client: 'sqlite3',
