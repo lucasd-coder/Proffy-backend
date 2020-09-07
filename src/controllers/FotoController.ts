@@ -10,7 +10,7 @@ const upload = multer(multerConfig).single('foto');
 
 class FotoController {
     store(req: Request, res: Response) {
-        return upload(req, res, async (error) => {
+        return upload(req, res, async (error: any) => {
             if (error) {
                 return res.status(400).json({
                     errors: [error.code],
