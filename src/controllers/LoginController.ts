@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 
 import bcryptjs from 'bcrypt';
-import * as config from '../config/privat';
 import jwt from 'jsonwebtoken';
 import isEmail from 'validator/lib/isEmail';
 import Validator from 'validator';
@@ -32,17 +31,13 @@ export default class LoginController {
 
             }
 
-
-            // if (password.length < 6) {
-            //     return res.status(400).json({ error: ['Passeord must be longer than 6 characters'] })
-            // }
-
-
-            await db('login').select().where('email', email).then(async data => {
+            await db('login').select('*').where('email', email).then(async data => {
                 if (data.length === 0) {
                     try {
                         const hash = await bcryptjs.hash(password, 8);
-                        await db('login').insert({
+                        await db('login')
+                        .returning('id')
+                        .insert({
                             name,
                             email,
                             password: hash
@@ -94,11 +89,15 @@ export default class LoginController {
                 return res.status(400).json({ error: 'invalid password' });
             }
 
-            const token = jwt.sign({ id: user.id, email: user.email }, config.TOKEN_SECRET, {
-                expiresIn: config.TOKEN_EXPIRATION
-            });
+            const token = jwt.sign({ id: user.id, email: user.email }, process.env.TOKEN_SECRET || 'default', {
+                expiresIn: process.env.TOKEN_EXPIRATION
+            });  
+            
+             
 
-            const { id } = user
+            
+            const { id } = user;                       
+                    
             res.json({ token, user: { nome: user.nome, id, email } });
 
 

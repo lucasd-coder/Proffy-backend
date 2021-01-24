@@ -1,9 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
-import * as config from '../config/privat';
 import db from '../database/connection';
 
+interface RequestDTO {
+    id: string;
+    email: string;
+}
 
 export default async (req: Request, res: Response, next: NextFunction) => {
     const { authorization } = req.headers;
@@ -16,8 +19,8 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     const [, token] = authorization.split(' ');
 
     try {
-        const dados = jwt.verify(token, config.TOKEN_SECRET);
-        const { id, email } = dados;
+        const dados = jwt.verify(token, process.env.TOKEN_SECRET || 'default');
+        const { id, email } = dados as RequestDTO;
 
         const user = await db('login')
             .select('login.*')
@@ -30,8 +33,10 @@ export default async (req: Request, res: Response, next: NextFunction) => {
             });
         }
 
-        req.userId = id;
-        req.userEmail = email;
+        req.user ={
+            id: id,
+            email: email
+        }
         return next();
 
     } catch (e) {

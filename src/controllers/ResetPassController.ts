@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcryptjs from 'bcrypt';
 import Validator from 'validator';
+import {addHours, isAfter, format, parseISO} from 'date-fns';
 
 
 import db from '../database/connection';
@@ -40,12 +41,16 @@ export default class ResetPassController {
                     if (token !== row.passwordResetToken) {
                         return res.status(400).send({ error: 'Token invalid' });
                     }
-
-                    const now = new Date();
-
-                    if (now > row.passwordResetExpires) {
+                    
+                    const tokenCreatedAt = row.passwordResetExpires;    
+                    const compareDate = addHours(tokenCreatedAt, 2);
+                    
+                    if (isAfter(Date.now(), compareDate)) {
                         return res.status(400).send({ error: 'Token expired, generate a new one' });
                     }
+                    
+                    
+                    
                     const salt = bcryptjs.genSaltSync(8)
                     const hash = bcryptjs.hashSync(password, salt);
 

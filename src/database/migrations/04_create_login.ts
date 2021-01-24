@@ -7,8 +7,7 @@ export async function up(knex: Knex) {
         table.string('email').notNullable().unique();
         table.string('password', 255).notNullable();
         table.string('passwordResetToken', 50)
-        table.date('passwordResetExpires')
-
+        table.dateTime('passwordResetExpires')
     })
 
 }

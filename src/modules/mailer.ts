@@ -3,6 +3,8 @@ import * as mail from '../config/mail';
 import hbs from 'nodemailer-express-handlebars';
 import path from 'path';
 
+
+
 const transport = nodemailer.createTransport({
     host: mail.host,
     port: mail.port,
@@ -21,5 +23,7 @@ transport.use('compile', hbs({
     extName: '.html',
 
 }));
+
+
 
 export default transport;

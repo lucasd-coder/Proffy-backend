@@ -30,10 +30,10 @@ export default class ClassesController {
             .whereExists(function () {
                 this.select('class_schedule.*')
                     .from('class_schedule')
-                    .whereRaw('`class_schedule`.`class_id` = `classes`.`id`')
-                    .whereRaw('`class_schedule`.`week_day` = ??', [Number(week_day)])
-                    .whereRaw('`class_schedule`.`from` <= ??', [timeInMinutes])
-                    .whereRaw('`class_schedule`.`to` > ??', [timeInMinutes])
+                    .whereRaw('class_schedule.class_id = classes.id')
+                    .whereRaw('class_schedule.week_day = ??', [Number(week_day)])
+                    .whereRaw('class_schedule.from <= ??', [timeInMinutes])
+                    .whereRaw('class_schedule.to > ??', [timeInMinutes])
             })
             .where('classes.subject', '=', subject)
             .join('users', 'classes.user_id', '=', 'users.id')
@@ -42,8 +42,8 @@ export default class ClassesController {
                 db('fotos').where('fotos.foto_id', data_fotos)
                     .select('fotos.url', 'fotos.filename', 'fotos.originalname')
                     .orderBy('id', 'desc')
-                    .then((Fotos) => {
-                        const data_fotos = [...data, { Fotos }];
+                    .then((fotos) => {
+                        const data_fotos = [...data, { fotos }];
                         return res.json(data_fotos);
                     }).catch((e) => { res.status(400).json(e) });
             }).catch((e) => { res.status(400).json(e) });
@@ -66,7 +66,7 @@ export default class ClassesController {
                 name,
                 whatsapp,
                 bio,
-            });
+            }).returning('id');
 
             const user_id = insertedUsersIds[0];
 
@@ -74,7 +74,7 @@ export default class ClassesController {
                 subject,
                 cost,
                 user_id
-            });
+            }).returning('id');
 
             const class_id = insertedClassesIds[0];
 

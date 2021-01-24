@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { resolve } from 'path';
 
 
+
 import routes from "./routes";
 
 
@@ -17,6 +18,8 @@ app.use('/images', express.static(resolve(__dirname, '..', 'uploads', 'images'))
 app.use(routes);
 
 
-app.listen(3333);
+app.listen(process.env.APP_PORT, () => {
+ console.log('🗽 Server started an port 3333');
+});
 
 
