@@ -7,6 +7,7 @@ import ResetPassword from './controllers/ResetPassController';
 import ForgotPassword from './controllers/ForgotPassController';
 import FotoController from './controllers/FotoController';
 import loginRequired from './middlewares/loginRequired';
+import ProffyController from './controllers/ProffyController';
 
 const routes = express.Router();
 const classesController = new ClassesController();
@@ -15,6 +16,7 @@ const loginController = new LoginController();
 const resetPassword = new ResetPassword();
 const forgotPassword = new ForgotPassword();
 const fotoController = new FotoController();
+const proffyController = new ProffyController();
 
 
 routes.post('/register', loginController.store);
@@ -27,6 +29,7 @@ routes.put('/classes/:id', loginRequired, classesController.update);
 routes.post('/classes', loginRequired, classesController.create);
 routes.get('/classes', loginRequired, classesController.index);
 routes.post('/', loginRequired, fotoController.store);
+routes.get('/proffys', loginRequired, proffyController.index);
 
 
 routes.post('/connections', loginRequired, connectionsController.create);

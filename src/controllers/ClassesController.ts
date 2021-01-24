@@ -12,7 +12,10 @@ interface ScheduleItem {
 export default class ClassesController {
     async index(req: Request, res: Response) {
         const filters = req.query;
+        const { page = 1 } = req.query;
 
+        const [count] = await db('users').count();        
+        
         const subject = filters.subject as string;
         const week_day = filters.week_day as string;
         const time = filters.time as string;
@@ -26,6 +29,7 @@ export default class ClassesController {
         const timeInMinutes = convertHourToMinutes(time);
 
 
+
         await db('classes')
             .whereExists(function () {
                 this.select('class_schedule.*')
@@ -37,6 +41,7 @@ export default class ClassesController {
             })
             .where('classes.subject', '=', subject)
             .join('users', 'classes.user_id', '=', 'users.id')
+            .limit(5).offset((<any>page - 1) * 5)
             .select(['classes.*', 'users.*']).then((data) => {
                 const data_fotos = data[0].user_id;
                 db('fotos').where('fotos.foto_id', data_fotos)
@@ -44,9 +49,14 @@ export default class ClassesController {
                     .orderBy('id', 'desc')
                     .then((fotos) => {
                         const data_fotos = [...data, { fotos }];
+
+                        res.header('X-Total-Count', count["count"] )
+
                         return res.json(data_fotos);
                     }).catch((e) => { res.status(400).json(e) });
             }).catch((e) => { res.status(400).json(e) });
+
+            
     }
     async create(req: Request, res: Response) {
         const {
