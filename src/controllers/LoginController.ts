@@ -90,6 +90,7 @@ export default class LoginController {
             }
 
             const token = jwt.sign({ id: user.id, email: user.email }, process.env.TOKEN_SECRET || 'default', {
+                
                 expiresIn: process.env.TOKEN_EXPIRATION
             });  
             

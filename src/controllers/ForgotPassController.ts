@@ -21,7 +21,7 @@ export default class ForgotPassController {
             const token = crypto.randomBytes(20).toString('hex');
 
             const now = new Date();
-            console.log(now);
+          
             
             const user = await db('login').where('login.email', '=', email).update({
                 passwordResetToken: token,
@@ -31,20 +31,20 @@ export default class ForgotPassController {
             if (!user) {
                 return res.status(400).json({ error: "E-mail already exists" });
             }
-
-
-            mailer.sendMail({
+            const optionsDatas = {
                 to: email,
                 from: 'rochasilva524@gmail.com',
                 template: '/auth/forgot_password',
-                context: { token },
-            }, (err) => {
+                context: { link: `${process.env.APP_URL}/auth/reset_password?token=${token}`},                
+            }
+
+            mailer.sendMail(optionsDatas, (err) => {
                 if (err)
-                    return res.status(400).send({ error: 'Cannot send forgot password email' });
+                return res.status(400).send({ error: 'Cannot send forgot password email' });
 
                 return res.send("ok");
-            });
-
+            })
+                
 
         } catch (error) {
             res.status(400).send({ error: 'Erro on forgot password, try again' });
