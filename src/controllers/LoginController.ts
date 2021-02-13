@@ -10,11 +10,10 @@ import db from '../database/connection';
 
 
 export default class LoginController {
-
-
+    
     //cadastrar
     async store(req: Request, res: Response) {
-        const { name, password, email } = req.body;
+        const { name, surname ,password, email } = req.body;
 
         try {
 
@@ -24,6 +23,10 @@ export default class LoginController {
 
             if (name.length < 4) {
                 return res.status(400).json({ error: ['Name must be longer than 4 characters'] })
+            }
+
+            if (surname.length < 4) {
+                return res.status(400).json({ error: ['Surname must be longer than 4 characters'] })
             }
 
             if (!Validator.isLength(password, { min: 6, max: 120 })) {
@@ -39,14 +42,16 @@ export default class LoginController {
                         .returning('id')
                         .insert({
                             name,
+                            surname,
                             email,
                             password: hash
                         }).then((data) => {
                             db('login').where('id', data[0])
                                 .then((data) => {
                                     const email = data[0].email;
+                                    const surname = data[0].surname;
                                     const name = data[0].name;
-                                    return res.status(201).json({ name, email });
+                                    return res.status(201).json({ name, surname ,email });
                                 });
                         });
                     } catch (e) {
