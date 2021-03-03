@@ -19,7 +19,7 @@ export async function up(knex: Knex) {
             .notNullable();
 
     });
-
+    
 }
 
 export async function down(knex: Knex) {

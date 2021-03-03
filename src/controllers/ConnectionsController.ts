@@ -14,15 +14,24 @@ export default class ConnectionsController {
 
     }
 
-
     async create(req: Request, res: Response) {
         const { user_id } = req.body;
 
-        await db('connections')
-        .returning('id')
-        .insert({
-            user_id,
-        });
+        await db('connections').select('*').where('user_id', user_id).then(async data => {          
+            if (data.length === 0) {
+                try {
+                    await db('connections')                           
+                            .insert({
+                                user_id
+                            })
+                    
+                } catch (e) {                                       
+                    return res.status(400).json({error: "user not found"});
+                }
+            } else {
+                return res.status(400).json({ error: "connections already exists" });
+            }
+        }).catch((e) => { return res.status(400).json(e) });
 
         return res.status(201).send();
 

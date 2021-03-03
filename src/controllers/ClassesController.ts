@@ -45,10 +45,10 @@ export default class ClassesController {
             .select(['classes.*', 'users.*']).then((data) => {
                 const data_fotos = data[0].user_id;
                 db('fotos').where('fotos.foto_id', data_fotos)
-                    .select('fotos.url', 'fotos.filename', 'fotos.originalname')
+                    .select('fotos.foto_id', 'fotos.url', 'fotos.filename', 'fotos.originalname')
                     .orderBy('id', 'desc')
                     .then((fotos) => {
-                        const data_fotos = [...data, { fotos }];
+                        const data_fotos = [...data, { fotos }];                                             
 
                         res.header('X-Total-Count', count["count"] )
 
