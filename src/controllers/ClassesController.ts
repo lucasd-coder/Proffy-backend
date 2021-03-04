@@ -28,8 +28,6 @@ export default class ClassesController {
 
         const timeInMinutes = convertHourToMinutes(time);
 
-
-
         await db('classes')
             .whereExists(function () {
                 this.select('class_schedule.*')
@@ -47,12 +45,13 @@ export default class ClassesController {
                 db('fotos').where('fotos.foto_id', data_fotos)
                     .select('fotos.foto_id', 'fotos.url', 'fotos.filename', 'fotos.originalname')
                     .orderBy('id', 'desc')
-                    .then((fotos) => {
-                        const data_fotos = [...data, { fotos }];                                             
+                    .then((fotos) => { 
+                                                
+                        const data_fotos =  Object.assign({ fotos }, ...data);                
+                        
+                        res.header('X-Total-Count', count["count"] );                        
 
-                        res.header('X-Total-Count', count["count"] )
-
-                        return res.json(data_fotos);
+                        return res.json(data_fotos)
                     }).catch((e) => { res.status(400).json(e) });
             }).catch((e) => { res.status(400).json(e) });
 
@@ -232,8 +231,8 @@ export default class ClassesController {
                     db('fotos').where('fotos.foto_id', data_fotos)
                         .select('fotos.url', 'fotos.filename', 'fotos.originalname')
                         .orderBy('id', 'desc')
-                        .then((Fotos) => {
-                            const data_fotos = [...data, { Fotos }];
+                        .then((fotos) => {
+                            const data_fotos = Object.assign( { fotos } ,...data );
                             return res.json(data_fotos);
                         }).catch((e) => { res.status(400).json(e) });
                 }).catch((e) => {
