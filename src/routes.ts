@@ -32,7 +32,7 @@ routes.post('/', loginRequired, fotoController.store);
 routes.get('/proffys', loginRequired, proffyController.index);
 
 
-routes.post('/connections', loginRequired, connectionsController.create);
+routes.post('/connections/:id', loginRequired, connectionsController.create);
 routes.get('/connections', loginRequired, connectionsController.index);
 
 

@@ -15,12 +15,10 @@ export default class ResetPassController {
 
             if (Validator.isEmpty(password)) {
                 return res.status(400).json({ error: ['Password is required'] });
-
             }
 
             if (!Validator.isLength(password, { min: 6, max: 120 })) {
                 return res.status(400).json({ error: ['Passeord must be longer than 6 characters'] });
-
             }
 
             if (Validator.isEmpty(confir_password)) {
