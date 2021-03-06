@@ -48,8 +48,8 @@ export default class ResetPassController {
 
                     db('login').where("id", row.id)
                         .update({ password: hash, passwordResetToken: null, passwordResetExpires: null })
-                        .then(resp => {
-                            res.status(201).json(resp);
+                        .then(() => {
+                            res.status(201).send('ok');
                         }
                         ).catch(e => console.log(e));
                 }).catch((e) => { res.status(400).json(e) });

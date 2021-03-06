@@ -53,9 +53,7 @@ export default class ClassesController {
 
                         return res.json([data_fotos])
                     }).catch((e) => { res.status(400).json(e) });
-            }).catch((e) => { res.status(400).json(e) });
-
-            
+            }).catch((e) => { res.status(400).json({ error: ['not found']}) });            
     }
     
     async create(req: Request, res: Response) {
@@ -125,9 +123,8 @@ export default class ClassesController {
             subject,
             cost,
             schedule
-        } = req.body;
-
-
+        } = req.body;        
+        
         const tsx = await db.transaction();
 
         try {
@@ -155,19 +152,19 @@ export default class ClassesController {
                     name,
                     whatsapp,
                     bio,
-                });
+                })
+                .returning('id');
 
-
-            const user_id = insertedUsersIds;
+            const user_id = insertedUsersIds[0];
 
             const insertedClassesIds = await tsx('classes')
                 .where('classes.user_id', user_id)
                 .update({
                     subject,
                     cost,
-                });
+                }).returning('id');
 
-            const class_id = insertedClassesIds;
+            const class_id = insertedClassesIds[0];
 
             const classSchedule = schedule.map((scheduleItem: ScheduleItem) => {
                 return {
@@ -215,37 +212,39 @@ export default class ClassesController {
 
             const users = await db('users')
                 .where('users.id', id)
-                .first('users.id');
-
+                .first('users.id');                
+                
             if (!users) {
                 return res.status(400).json({
                     errors: ['there is no'],
                 });
             }
 
-            const _id = users.id;
+            const _id = users.id;                                          
 
             await db('users')
-                .select(['users.*', 'classes.*', 'class_schedule.*'])
+                .where('users.id', _id) 
+                .select(['users.*', 'classes.*', 'class_schedule.*'])                            
                 .innerJoin('classes', 'classes.user_id', 'users.id')
-                .innerJoin('class_schedule', 'class_schedule.class_id', 'users.id')
-                .where('users.id', _id)
+                .innerJoin('class_schedule', 'class_schedule.class_id', 'classes.id')
                 .then((data) => {
-                    const data_fotos = data[0].user_id;
+                    const data_fotos = data[0].user_id;                                        
+                                                                           
                     db('fotos').where('fotos.foto_id', data_fotos)
                         .select('fotos.url', 'fotos.filename', 'fotos.originalname')
                         .orderBy('id', 'desc')
                         .then((foto) => {
                             const data_fotos = Object.assign( { foto } ,...data );
                             return res.json([data_fotos]);
-                        }).catch((e) => { res.status(400).json(e) });
-                }).catch((e) => {
+                        }).catch((e) => { res.status(400).json(e) });                    
+                })
+                .catch((e) => {
                     console.log(e);
                     return res.status(400).json(e);
                 });
 
         } catch (e) {
-            res.status(400).json(e)
+            res.status(400).json({ error: ['User does not exist'] });
         }
     }
 }
