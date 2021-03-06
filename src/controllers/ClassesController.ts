@@ -45,18 +45,19 @@ export default class ClassesController {
                 db('fotos').where('fotos.foto_id', data_fotos)
                     .select('fotos.foto_id', 'fotos.url', 'fotos.filename', 'fotos.originalname')
                     .orderBy('id', 'desc')
-                    .then((fotos) => { 
+                    .then((foto) => { 
                                                 
-                        const data_fotos =  Object.assign({ fotos }, ...data);                
+                        const data_fotos =  Object.assign({ foto }, ...data);                
                         
                         res.header('X-Total-Count', count["count"] );                        
 
-                        return res.json(data_fotos)
+                        return res.json([data_fotos])
                     }).catch((e) => { res.status(400).json(e) });
             }).catch((e) => { res.status(400).json(e) });
 
             
     }
+    
     async create(req: Request, res: Response) {
         const {
             name,
@@ -83,7 +84,7 @@ export default class ClassesController {
                 subject,
                 cost,
                 user_id
-            }).returning('id');
+            }).returning('id');            
 
             const class_id = insertedClassesIds[0];
 
@@ -95,6 +96,8 @@ export default class ClassesController {
                     to: convertHourToMinutes(scheduleItem.to),
                 };
             });
+
+            await tsx('fotos').insert({ foto_id: user_id});
 
             await tsx('class_schedule').insert(classSchedule);
 
@@ -198,6 +201,7 @@ export default class ClassesController {
             });
         }
     }
+
     async show(req: Request, res: Response) {
         const { id } = req.params;
 
@@ -231,9 +235,9 @@ export default class ClassesController {
                     db('fotos').where('fotos.foto_id', data_fotos)
                         .select('fotos.url', 'fotos.filename', 'fotos.originalname')
                         .orderBy('id', 'desc')
-                        .then((fotos) => {
-                            const data_fotos = Object.assign( { fotos } ,...data );
-                            return res.json(data_fotos);
+                        .then((foto) => {
+                            const data_fotos = Object.assign( { foto } ,...data );
+                            return res.json([data_fotos]);
                         }).catch((e) => { res.status(400).json(e) });
                 }).catch((e) => {
                     console.log(e);

@@ -1,10 +1,12 @@
 import Knex from 'knex';
 
 export async function up(knex: Knex) {
-    return knex.schema.createTable('connections', table => {
-        table.increments('id').primary();
+    return knex.schema
+             .raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
+             .createTable('connections', table => {
+        table.uuid('id').primary().notNullable().defaultTo(knex.raw('uuid_generate_v4()'));
 
-        table.integer('user_id')
+        table.uuid('user_id')
             .notNullable()
             .references('id')
             .inTable('users')

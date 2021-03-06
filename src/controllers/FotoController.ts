@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 
 import multerConfig from '../config/multerConfig';
 import db from '../database/connection';
-
+import { deleteFile } from '../utils/deleteFile';
 
 const upload = multer(multerConfig).single('foto');
 
@@ -14,31 +14,49 @@ class FotoController {
                 return res.status(400).json({
                     errors: [error.code],
                 });
-            }
-            try {
-                const { originalname, filename } = req.file;
-                const { foto_id } = req.body;
-                try {
+            }                 
+            
+            const { originalname, filename } = req.file;
+            const { foto_id } = req.body;
+            
+            try {                
+                
+                const file = await db('fotos')
+                                    .where('fotos.foto_id', foto_id)
+                                    .first('*');                                                                                                         
+                                                        
+                    if (!file) { 
+                        await deleteFile(file.filename);                                             
+                        return res.status(400).json({
+                                 error: ['not found'] 
+                        });
+                    }
+
+                    if(file.filename) {
+                        await deleteFile(file.filename);
+                    }                                     
+                                        
                     await db('fotos')
-                    .returning('id')
-                    .insert({
+                    .where('fotos.foto_id', '=', file.foto_id)                             
+                    .update({
                         foto_id: foto_id,
                         originalname: originalname,
                         filename: filename,
                         url: `${process.env.APP_URL}/images/${filename}`
-                    }).then((data) => {
-                        db('fotos').where('id', data[0])
-                            .then((data) => { return res.json(data) })
-                    }).catch((e) => { return res.status(400).json(e); })
-                } catch (e) {
-                    return res.status(400).json(e);
-                }
+                    }).returning(['originalname', 'filename', 'url'])
+                      .then((data) => {
+                        if(Object.entries(data).length === 0 || !data) {
+                            return res.status(400).json({ error: ['User does not exist'] });                                           
+                        }
 
+                        return res.json(data);
+
+                    }).catch((e) => { return res.status(400).json(e); });
+                    
             } catch (e) {
-                console.log(e);
-                return res.status(400).json({ error: ['User does not exist'] });
-            }
-
+                    await deleteFile(filename);                                                      
+                    return res.status(400).json({ error: ['User does not exist'] });
+            }                           
         });
     }
 }

@@ -3,12 +3,9 @@ import bcryptjs from 'bcrypt';
 import Validator from 'validator';
 import {addHours, isAfter, format, parseISO} from 'date-fns';
 
-
 import db from '../database/connection';
 
-
 export default class ResetPassController {
-
 
     // reset_password
     async store(req: Request, res: Response) {
@@ -34,7 +31,6 @@ export default class ResetPassController {
                 return res.status(400).json({ error: ["Passwords must match"] });
             }
 
-
             await db('login')
                 .first('passwordResetToken', 'passwordResetExpires', 'id').then(function (row) {
 
@@ -47,9 +43,7 @@ export default class ResetPassController {
                     
                     if (isAfter(Date.now(), compareDate)) {
                         return res.status(400).send({ error: 'Token expired, generate a new one' });
-                    }
-                    
-                    
+                    }                                        
                     
                     const salt = bcryptjs.genSaltSync(8)
                     const hash = bcryptjs.hashSync(password, salt);
@@ -66,8 +60,6 @@ export default class ResetPassController {
             res.status(400).send({ error: 'Erro on forgot password, try again' });
 
         }
-
-
 
     }
 }

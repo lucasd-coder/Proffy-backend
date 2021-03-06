@@ -5,9 +5,7 @@ import jwt from 'jsonwebtoken';
 import isEmail from 'validator/lib/isEmail';
 import Validator from 'validator';
 
-
 import db from '../database/connection';
-
 
 export default class LoginController {
     
@@ -64,8 +62,6 @@ export default class LoginController {
         } catch (err) {
 
             return res.status(400).json({ err });
-
-
         }
 
     }
@@ -98,14 +94,10 @@ export default class LoginController {
                 
                 expiresIn: process.env.TOKEN_EXPIRATION
             });  
-            
-             
-
-            
+                                     
             const { id } = user;                       
                     
             res.json({ token, user: { nome: user.nome, id, email } });
-
 
         } catch (e) {
             console.log(e);
@@ -114,7 +106,5 @@ export default class LoginController {
         }
 
     }
-
-
 
 }

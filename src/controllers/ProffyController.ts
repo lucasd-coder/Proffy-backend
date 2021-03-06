@@ -2,8 +2,6 @@ import { Request, Response } from 'express';
 
 import db from '../database/connection';
 
-
-
 class ProffyController {
     async index(req: Request, res: Response) {
         const { page = 1 } = req.query;
@@ -18,8 +16,7 @@ class ProffyController {
             res.header('X-Total-Count', count["count"] )
 
             res.json(users)
-            
-            
+                        
         } catch (e) {
             res.status(400).json(e)
 

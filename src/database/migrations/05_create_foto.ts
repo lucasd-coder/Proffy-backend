@@ -1,13 +1,15 @@
 import Knex from 'knex';
 
 export async function up(knex: Knex) {
-    return knex.schema.createTable('fotos', table => {
-        table.increments('id').primary();
-        table.string('originalname').notNullable();
-        table.string('filename').notNullable();
-        table.string('url').notNullable();
+    return knex.schema
+             .raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
+             .createTable('fotos', table => {
+        table.uuid('id').primary().notNullable().defaultTo(knex.raw('uuid_generate_v4()'));
+        table.string('originalname');
+        table.string('filename');
+        table.string('url');
 
-        table.integer('foto_id')
+        table.uuid('foto_id')
             .notNullable()
             .references('id')
             .inTable('users')

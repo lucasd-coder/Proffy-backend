@@ -4,8 +4,6 @@ import crypto from 'crypto';
 import mailer from '../modules/mailer'
 import db from '../database/connection';
 
-
-
 export default class ForgotPassController {
 
     //forgot_password
@@ -21,8 +19,7 @@ export default class ForgotPassController {
             const token = crypto.randomBytes(20).toString('hex');
 
             const now = new Date();
-          
-            
+                      
             const user = await db('login').where('login.email', '=', email).update({
                 passwordResetToken: token,
                 passwordResetExpires: now
@@ -45,13 +42,9 @@ export default class ForgotPassController {
                 return res.send("ok");
             })
                 
-
         } catch (error) {
             res.status(400).send({ error: 'Erro on forgot password, try again' });
         }
-
-
-
 
     }
 
