@@ -7,7 +7,7 @@ export async function up(knex: Knex) {
         table.uuid('id').primary().notNullable().defaultTo(knex.raw('uuid_generate_v4()'));
         table.string('name').notNullable();
         table.string('whatsapp').notNullable();
-        table.string('bio').notNullable();
+        table.text('bio').notNullable();
 
     })
 }

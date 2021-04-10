@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import bcryptjs from 'bcrypt';
+import bcryptjs from 'bcryptjs';
 import Validator from 'validator';
-import {addHours, isAfter, format, parseISO} from 'date-fns';
+import {addHours, isAfter} from 'date-fns';
 
 import db from '../database/connection';
 

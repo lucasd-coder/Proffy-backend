@@ -17,7 +17,7 @@ class FotoController {
             }                 
             
             const { originalname, filename } = req.file;
-            const { foto_id } = req.body;
+            const { foto_id } = req.params;                     
             
             try {                
                 

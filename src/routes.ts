@@ -28,7 +28,7 @@ routes.get('/classes/:id', classesController.show);
 routes.put('/classes/:id', loginRequired, classesController.update);
 routes.post('/classes', loginRequired, classesController.create);
 routes.get('/classes', loginRequired, classesController.index);
-routes.post('/', loginRequired, fotoController.store);
+routes.post('/avatar/:foto_id', loginRequired, fotoController.store);
 routes.get('/proffys', loginRequired, proffyController.index);
 
 

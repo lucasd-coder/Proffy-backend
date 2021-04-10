@@ -16,7 +16,7 @@ app.use(routes);
 
 
 app.listen(process.env.APP_PORT, () => {
- console.log('🗽 Server started an port 3333');
+ console.log('🗽 Server started an port 3333'); 
 });
 
 

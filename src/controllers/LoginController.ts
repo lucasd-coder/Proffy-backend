@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import bcryptjs from 'bcrypt';
+import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import isEmail from 'validator/lib/isEmail';
 import Validator from 'validator';
@@ -83,11 +83,11 @@ export default class LoginController {
 
 
             if (!user) {
-                return res.status(401).json({ errors: 'invalid email' });
+                return res.status(401).json({ errors: 'invalid email or password' });
             }
 
             if (!await bcryptjs.compare(password, user.password)) {
-                return res.status(400).json({ error: 'invalid password' });
+                return res.status(400).json({ error: 'invalid email or password' });
             }
 
             const token = jwt.sign({ id: user.id, email: user.email }, process.env.TOKEN_SECRET || 'default', {

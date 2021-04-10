@@ -38,21 +38,15 @@ export default class ClassesController {
                     .whereRaw('class_schedule.to > ??', [timeInMinutes])
             })
             .where('classes.subject', '=', subject)
-            .join('users', 'classes.user_id', '=', 'users.id')
+            .innerJoin('users', 'classes.user_id', '=', 'users.id')
+            .innerJoin('fotos', 'fotos.foto_id', '=',  'users.id')
             .limit(5).offset((<any>page - 1) * 5)
-            .select(['classes.*', 'users.*']).then((data) => {
-                const data_fotos = data[0].user_id;
-                db('fotos').where('fotos.foto_id', data_fotos)
-                    .select('fotos.foto_id', 'fotos.url', 'fotos.filename', 'fotos.originalname')
-                    .orderBy('id', 'desc')
-                    .then((foto) => { 
-                                                
-                        const data_fotos =  Object.assign({ foto }, ...data);                
-                        
-                        res.header('X-Total-Count', count["count"] );                        
+            .select(['classes.*', 'users.*', 'fotos.*'])
+            .then((data) => {
 
-                        return res.json([data_fotos])
-                    }).catch((e) => { res.status(400).json(e) });
+                res.header('X-Total-Count', count["count"] );
+
+                return res.json(data)
             }).catch((e) => { res.status(400).json({ error: ['not found']}) });            
     }
     
@@ -64,7 +58,7 @@ export default class ClassesController {
             subject,
             cost,
             schedule
-        } = req.body;
+        } = req.body;                
 
         const tsx = await db.transaction();
 
@@ -74,16 +68,16 @@ export default class ClassesController {
                 name,
                 whatsapp,
                 bio,
-            }).returning('id');
-
+            }).returning('id');                                  
+            
             const user_id = insertedUsersIds[0];
-
+                        
             const insertedClassesIds = await tsx('classes').insert({
                 subject,
                 cost,
                 user_id
-            }).returning('id');            
-
+            }).returning('id');           
+            
             const class_id = insertedClassesIds[0];
 
             const classSchedule = schedule.map((scheduleItem: ScheduleItem) => {
@@ -94,18 +88,19 @@ export default class ClassesController {
                     to: convertHourToMinutes(scheduleItem.to),
                 };
             });
-
+                                
             await tsx('fotos').insert({ foto_id: user_id});
 
             await tsx('class_schedule').insert(classSchedule);
 
             await tsx.commit();
 
-            return res.status(201).send();
+            return res.status(200).json({id: user_id});
 
         } catch (e) {
             await tsx.rollback();
-
+            console.log(e);
+            
             return res.status(400).json({
                 error: 'Unexpected error white creating new class'
             })
@@ -226,10 +221,10 @@ export default class ClassesController {
                 .where('users.id', _id) 
                 .select(['users.*', 'classes.*', 'class_schedule.*'])                            
                 .innerJoin('classes', 'classes.user_id', 'users.id')
-                .innerJoin('class_schedule', 'class_schedule.class_id', 'classes.id')
+                .innerJoin('class_schedule', 'class_schedule.class_id', 'classes.id')                
                 .then((data) => {
                     const data_fotos = data[0].user_id;                                        
-                                                                           
+                                                                                            
                     db('fotos').where('fotos.foto_id', data_fotos)
                         .select('fotos.url', 'fotos.filename', 'fotos.originalname')
                         .orderBy('id', 'desc')
